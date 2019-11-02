@@ -2,6 +2,9 @@ language: rust
 rust:
   - stable
   - nightly
+matrix:
+  fast_finish: true
 script:
   - cargo build --release --verbose --all
   - cargo test --verbose --all
+cache: cargo
