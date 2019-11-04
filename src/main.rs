@@ -2,7 +2,7 @@ use std::env;
 use dotenv::dotenv;
 use regex::Regex;
 use serenity::{
-    model::{channel::Message, gateway::Ready},
+    model::{channel::Message, gateway::Ready, guild::Guild},
     prelude::*,
 };
 
@@ -20,7 +20,19 @@ impl EventHandler for Handler {
         }
     }
 
-    fn ready(&self, _: Context, ready: Ready) {
+    fn ready(&self, ctx: Context, ready: Ready) {
+        ready.guilds.into_iter()
+            .map(move |guild| { guild.id() })
+            .map(move |id| {
+                match Guild::get(&ctx.http, id) {
+                    Ok(guild) => Some((id, guild.name)),
+                    Err(_) => None
+                }
+            })
+            .filter_map(move |r| { r })
+            .for_each(move |(id, name)| {
+                println!("joined at {} ({})", name, id);
+            });
         println!("{} is connected!", ready.user.name);
     }
 }
